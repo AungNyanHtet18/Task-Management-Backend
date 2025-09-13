@@ -29,6 +29,7 @@ public class Task {
 	
 	@Column(nullable = false)
 	private LocalDate dueDate;
+	
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private String description;

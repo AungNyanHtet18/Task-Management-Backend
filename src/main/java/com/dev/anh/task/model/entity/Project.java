@@ -16,12 +16,15 @@ public class Project {
 	@Id
 	@GeneratedValue(strategy =  GenerationType.IDENTITY)
 	private int id;
+	
 	@Column(nullable = false)
 	private String name;
-	private String description;
+	
 	@Column(nullable = false)
 	private LocalDate startDate;
+	
 	@Column(nullable = false)
 	private LocalDate dueDate;
 	
+	private String description;
 }

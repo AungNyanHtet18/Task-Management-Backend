@@ -1,5 +1,12 @@
 package com.dev.anh.task.api.input;
 
-public record ProjectForm() {
+import java.time.LocalDate;
+
+public record ProjectForm(
+	String name,
+	LocalDate startDate,
+	LocalDate dueDate,
+	String description
+	) {
 
 }
