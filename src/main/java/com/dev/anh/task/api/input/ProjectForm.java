@@ -5,12 +5,15 @@ import java.time.LocalDate;
 import com.dev.anh.task.model.entity.Project;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record ProjectForm(
-	@NotBlank
+	@NotBlank(message = "Please Enter Project Name")
 	String name,
+	@NotNull(message = "Please Enter Start Date")
 	LocalDate startDate,
 	LocalDate dueDate,
+	@NotNull(message = "Please Enter Due Date")
 	String description
 	) {
 
