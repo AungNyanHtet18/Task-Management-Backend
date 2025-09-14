@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 public record ProjectForm(
 	@NotBlank
 	String name,
-	
+	String error,
 	LocalDate startDate,
 	LocalDate dueDate,
 	String description
