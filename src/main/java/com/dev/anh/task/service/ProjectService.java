@@ -13,6 +13,16 @@ import com.dev.anh.task.api.output.ProjectListItem;
 @Service
 public class ProjectService {
 
+	public ModificationResult<Integer> create(ProjectForm form) {
+		
+		return null;
+	}
+
+	public ModificationResult<Integer> update(int id, ProjectForm form) {
+		
+		return null;
+	}
+	
 	
 	public List<ProjectListItem> search(ProjectSearch search) {
 		
@@ -20,16 +30,6 @@ public class ProjectService {
 	}
 
 	public ProjectDetails findById(int id) {
-		
-		return null;
-	}
-
-	public ModificationResult<Integer> create(ProjectForm form) {
-		
-		return null;
-	}
-
-	public ModificationResult<Integer> update(int id, ProjectForm form) {
 		
 		return null;
 	}

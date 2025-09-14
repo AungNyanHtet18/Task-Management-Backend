@@ -7,6 +7,11 @@ public record ModificationResult<ID>(
 	String message
 	) {
 
+	public static <ID>ModificationResult<ID> success(ID id) {
+		return new ModificationResult<>(id ,true, null);
+	}
+
+	
 	
 	
 }
