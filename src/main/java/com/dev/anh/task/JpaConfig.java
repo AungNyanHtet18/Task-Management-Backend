@@ -8,6 +8,6 @@ import com.dev.anh.task.model.BaseRepositoryImpl;
 @EnableJpaRepositories(repositoryBaseClass = BaseRepositoryImpl.class)
 public class JpaConfig {
 
-
+	
 	
 }

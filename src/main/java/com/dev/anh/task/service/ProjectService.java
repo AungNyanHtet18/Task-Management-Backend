@@ -35,7 +35,7 @@ public class ProjectService {
 		
 		return ModificationResult.success(entity.getId());
 	}
-	
+	 
 	
 	public List<ProjectListItem> search(ProjectSearch search) {
 		

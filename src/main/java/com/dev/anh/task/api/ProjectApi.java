@@ -3,6 +3,7 @@ package com.dev.anh.task.api;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,8 @@ import com.dev.anh.task.api.output.ModificationResult;
 import com.dev.anh.task.api.output.ProjectDetails;
 import com.dev.anh.task.api.output.ProjectListItem;
 import com.dev.anh.task.service.ProjectService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("projects")
@@ -53,7 +56,7 @@ public class ProjectApi {
 	 * @return
 	 */
 	@PostMapping
-	ModificationResult<Integer> create(@RequestBody ProjectForm form) {
+	ModificationResult<Integer> create(@Validated @RequestBody ProjectForm form) {//changing json type to  java object
 		 return service.create(form);
 	}
 	
@@ -66,7 +69,8 @@ public class ProjectApi {
 	 * @return
 	 */
 	@PutMapping("{id}")
-	ModificationResult<Integer> update(@PathVariable int id, ProjectForm form) {
+	ModificationResult<Integer> update(@PathVariable int id,
+									   @Validated @RequestBody ProjectForm form) {
 		 return service.update(id,form);
 	}
 	 
