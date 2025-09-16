@@ -12,6 +12,7 @@ import com.dev.anh.task.api.output.ModificationResult;
 import com.dev.anh.task.api.output.ProjectDetails;
 import com.dev.anh.task.api.output.ProjectListItem;
 import com.dev.anh.task.model.repo.ProjectRepo;
+import com.dev.anh.task.utils.ApiBusinessException;
 
 
 @Service
@@ -23,19 +24,22 @@ public class ProjectService {
 	
 	@Transactional
 	public ModificationResult<Integer> create(ProjectForm form) {
+		
+		checkBusinessRule(form);
+		
 		var entity =  repo.save(form.entity()); //returned entity is in the  managed state
 		return ModificationResult.success(entity.getId());
 	}
 	
-	
 	@Transactional
 	public ModificationResult<Integer> update(int id, ProjectForm form) {
-		var entity = repo.findById(id).orElseThrow();
+		var entity = repo.findById(id)
+						 .orElseThrow(() -> new ApiBusinessException("There is no project with id : %d".formatted(id)));
+		
 		form.update(entity);
 		
 		return ModificationResult.success(entity.getId());
 	}
-	 
 	
 	public List<ProjectListItem> search(ProjectSearch search) {
 		
@@ -45,6 +49,13 @@ public class ProjectService {
 	public ProjectDetails findById(int id) {
 		
 		return null;
+	}
+	
+	
+	private void checkBusinessRule(ProjectForm form) {
+		if(!form.dueDate().isAfter(form.startDate())) {
+			 throw new ApiBusinessException("Due Date must be later than start date");
+		}
 	}
 
 }
