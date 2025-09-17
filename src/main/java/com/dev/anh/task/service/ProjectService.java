@@ -1,6 +1,7 @@
 package com.dev.anh.task.service;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,8 +12,13 @@ import com.dev.anh.task.api.input.ProjectSearch;
 import com.dev.anh.task.api.output.ModificationResult;
 import com.dev.anh.task.api.output.ProjectDetails;
 import com.dev.anh.task.api.output.ProjectListItem;
+import com.dev.anh.task.model.entity.Project;
+import com.dev.anh.task.model.entity.Project_;
 import com.dev.anh.task.model.repo.ProjectRepo;
 import com.dev.anh.task.utils.ApiBusinessException;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 
 
 @Service
@@ -42,8 +48,22 @@ public class ProjectService {
 	}
 	
 	public List<ProjectListItem> search(ProjectSearch search) {
-		
-		return null;
+		return repo.search(queryFunc(search));
+	}
+
+	private Function<CriteriaBuilder,CriteriaQuery<ProjectListItem>> queryFunc(ProjectSearch search) {
+		return cb->{
+			 var cq = cb.createQuery(ProjectListItem.class);
+			 var root = cq.from(Project.class);
+			 
+			 ProjectListItem.select(cb,cq,root);
+			 cq.where(search.where(search,cb,root));
+			 
+			 cq.orderBy(cb.desc(root.get(Project_.startDate)));
+			 
+			 return cq;
+			 
+		};
 	}
 
 	public ProjectDetails findById(int id) {
