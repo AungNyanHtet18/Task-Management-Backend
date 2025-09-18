@@ -19,7 +19,6 @@ import com.dev.anh.task.api.output.ProjectDetails;
 import com.dev.anh.task.api.output.ProjectListItem;
 import com.dev.anh.task.service.ProjectService;
 
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("projects")

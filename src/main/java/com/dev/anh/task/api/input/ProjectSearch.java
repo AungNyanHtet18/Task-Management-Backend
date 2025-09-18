@@ -9,8 +9,8 @@ import com.dev.anh.task.model.entity.Project;
 import com.dev.anh.task.model.entity.Project_;
 import com.dev.anh.task.model.entity.Task_;
 
-import ch.qos.logback.core.util.StringUtil;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -23,10 +23,9 @@ public record ProjectSearch(
 	Long taskTo,
 	String keyword){
 
-	public Predicate[] where(ProjectSearch search, CriteriaBuilder cb, Root<Project> root) {
+	public Predicate[] where(CriteriaBuilder cb, Root<Project> root) {
 
 		var params = new ArrayList<Predicate>();
-		var tasks = root.join(Project_.tasks); 
 		
 	    if(null != startFrom) {
 	    	 params.add(cb.greaterThanOrEqualTo(root.get(Project_.startDate),startFrom));
@@ -40,22 +39,33 @@ public record ProjectSearch(
 	    	 params.add(cb.greaterThanOrEqualTo(root.get(Project_.dueDate), dueDateFrom));
 	    }
 
-	    
 	    if(null != dueDateTo) {
 	    	 params.add(cb.lessThan(root.get(Project_.dueDate), dueDateTo.plusDays(1)));
 	    }
 	    
+	    
+	    if(StringUtils.hasLength(keyword)) {
+	    	 params.add(cb.or(
+	    			 cb.like(cb.lower(root.get(Project_.name)), keyword.toLowerCase().concat("%")),
+	    			 cb.like(cb.lower(root.get(Project_.description)), keyword.toLowerCase().concat("%"))
+	    			 ));
+	    }
+	
+		return params.toArray(size -> new Predicate[size]);
+	}
+
+	public Predicate[] having(CriteriaBuilder cb, Root<Project> root) {
+		var params = new ArrayList<Predicate>();
+		
+		var tasks = root.join(Project_.tasks,JoinType.LEFT);
+		var taskCount = cb.count(tasks.get(Task_.id));
+		
 	    if(null != taskFrom) {
-	    	 params.add(cb.greaterThanOrEqualTo(tasks.get(Task_.id), taskFrom.intValue()));
+	    	 params.add(cb.ge(taskCount, taskFrom));
 	    }
 	    
 	    if(null != taskTo) {
-	    	 params.add(cb.lessThan(tasks.get(Task_.id), taskTo.intValue()));
-	    }
-	    
-	    
-	    if(StringUtils.hasLength(keyword)) {
-	    	 params.add(cb.like(cb.lower(root.get(Project_.description)), keyword.toLowerCase().concat("%")));
+	    	 params.add(cb.le(taskCount, taskTo));
 	    }
 		
 		return params.toArray(size -> new Predicate[size]);

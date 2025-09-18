@@ -57,12 +57,15 @@ public class ProjectService {
 			 var root = cq.from(Project.class);
 			 
 			 ProjectListItem.select(cb,cq,root);
-			 cq.where(search.where(search,cb,root));
+			 cq.where(search.where(cb,root));
+			 var havingPredicate = search.having(cb, root);
+			 if(havingPredicate != null && havingPredicate.length > 0) {
+				 cq.having(havingPredicate);
+			 }
 			 
-			 cq.orderBy(cb.desc(root.get(Project_.startDate)));
+			 cq.orderBy(cb.desc(root.get(Project_.id)));
 			 
 			 return cq;
-			 
 		};
 	}
 
