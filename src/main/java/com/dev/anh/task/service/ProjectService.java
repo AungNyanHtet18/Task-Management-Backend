@@ -19,6 +19,7 @@ import com.dev.anh.task.utils.ApiBusinessException;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
 
 
 @Service
@@ -56,10 +57,15 @@ public class ProjectService {
 			 var cq = cb.createQuery(ProjectListItem.class);
 			 var root = cq.from(Project.class);
 			 
-			 ProjectListItem.select(cb,cq,root);
+			 var tasks =  root.join(Project_.tasks,JoinType.LEFT);
+			 
+			 ProjectListItem.select(cb, cq, root, tasks);
+			 
 			 cq.where(search.where(cb,root));
-			 var havingPredicate = search.having(cb, root);
-			 if(havingPredicate != null && havingPredicate.length > 0) {
+			 
+			 var havingPredicate = search.having(cb, root, tasks);
+			 
+			 if(havingPredicate.length > 0) {
 				 cq.having(havingPredicate);
 			 }
 			 
@@ -70,8 +76,7 @@ public class ProjectService {
 	}
 
 	public ProjectDetails findById(int id) {
-		
-		return null;
+		return repo.findById(id).map(ProjectDetails::from).orElseThrow(()-> new ApiBusinessException("There is no project with this id : %d".formatted(id)));
 	}
 	
 	

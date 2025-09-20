@@ -1,6 +1,7 @@
 package com.dev.anh.task.service;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,9 +12,15 @@ import com.dev.anh.task.api.input.TaskSearch;
 import com.dev.anh.task.api.output.ModificationResult;
 import com.dev.anh.task.api.output.TaskDetails;
 import com.dev.anh.task.api.output.TaskListItem;
+import com.dev.anh.task.model.entity.Project_;
+import com.dev.anh.task.model.entity.Task;
+import com.dev.anh.task.model.entity.Task_;
 import com.dev.anh.task.model.repo.ProjectRepo;
 import com.dev.anh.task.model.repo.TaskRepo;
 import com.dev.anh.task.utils.ApiBusinessException;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 
 
 @Service
@@ -44,19 +51,37 @@ public class TaskService {
 	}
 	
 	public List<TaskListItem> search(TaskSearch search) {
-		
-		return null;
+		return taskRepo.search(queryFunc(search));
+	}
+	
+
+	private Function<CriteriaBuilder,CriteriaQuery<TaskListItem>> queryFunc(TaskSearch search) {
+		return cb->{
+			 var cq = cb.createQuery(TaskListItem.class);
+			 var root = cq.from(Task.class);
+			 
+			 TaskListItem.select(cb,cq,root);
+			 cq.where(search.where(cb,root));
+			 
+			 cq.orderBy(
+				cb.desc(root.get(Task_.project).get(Project_.id)),
+				cb.desc(root.get(Task_.id)));
+			 
+			 return cq;
+		};
 	}
 
 	public TaskDetails findById(int id) {
+		var entity = taskRepo.findById(id)
+							 .orElseThrow(()-> new ApiBusinessException("There is no task with this id : %d".formatted(id)));
 		
-		return null;
+		return TaskDetails.from(entity);
 	}
 
 	private void checkBusinessRule(TaskForm form) {
 		
-		if(form.startDate() != null && 
-		   form.endDate()  != null ) {
+		if(form.startDate() == null ||
+		   form.endDate()  == null ) {
 			 throw new ApiBusinessException("Start Date or End Date need to be filled");
 		}
 		

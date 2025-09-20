@@ -19,7 +19,7 @@ public record TaskForm(
 	LocalDate dueDate,
 	LocalDate startDate,
 	LocalDate endDate,
-	String descripString
+	String description
 	) {
 
 	public Task entity(Project project) {
@@ -35,7 +35,7 @@ public record TaskForm(
 		entity.setDueDate(dueDate);
 		entity.setStartDate(startDate);
 		entity.setEndDate(endDate);
-		entity.setDescription(descripString);
+		entity.setDescription(description);
 	}
 
 }

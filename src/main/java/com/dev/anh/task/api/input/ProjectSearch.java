@@ -7,10 +7,11 @@ import org.springframework.util.StringUtils;
 
 import com.dev.anh.task.model.entity.Project;
 import com.dev.anh.task.model.entity.Project_;
+import com.dev.anh.task.model.entity.Task;
 import com.dev.anh.task.model.entity.Task_;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.ListJoin;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -48,16 +49,15 @@ public record ProjectSearch(
 	    	 params.add(cb.or(
 	    			 cb.like(cb.lower(root.get(Project_.name)), keyword.toLowerCase().concat("%")),
 	    			 cb.like(cb.lower(root.get(Project_.description)), keyword.toLowerCase().concat("%"))
-	    			 ));
+	    	 ));
 	    }
 	
 		return params.toArray(size -> new Predicate[size]);
 	}
 
-	public Predicate[] having(CriteriaBuilder cb, Root<Project> root) {
+	public Predicate[] having(CriteriaBuilder cb, Root<Project> root, ListJoin<Project, Task> tasks) {
 		var params = new ArrayList<Predicate>();
 		
-		var tasks = root.join(Project_.tasks,JoinType.LEFT);
 		var taskCount = cb.count(tasks.get(Task_.id));
 		
 	    if(null != taskFrom) {
