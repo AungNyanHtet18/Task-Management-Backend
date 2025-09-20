@@ -52,12 +52,15 @@ public record TaskSearch(
 		}
 		
 		if(StringUtils.hasLength(keyword)) {
+			
+			var value = keyword.toLowerCase().concat("%");
+			
 			 params.add(cb.or(
-				  cb.like(cb.lower(root.get(Task_.name)),  keyword.toLowerCase().concat("%")),
-				  cb.like(cb.lower(root.get(Task_.description)), keyword.toLowerCase().concat("%"))		  
+				  cb.like(cb.lower(root.get(Task_.name)), value),
+				  cb.like(cb.lower(root.get(Task_.assignee)), value),
+				  cb.like(cb.lower(root.get(Task_.project).get(Project_.name)), value)		  
 			 ));
 		}
-		
 		
 		return params.toArray(size -> new Predicate[size]);
 	}
