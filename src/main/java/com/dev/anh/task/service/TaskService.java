@@ -12,6 +12,7 @@ import com.dev.anh.task.api.input.TaskSearch;
 import com.dev.anh.task.api.output.ModificationResult;
 import com.dev.anh.task.api.output.TaskDetails;
 import com.dev.anh.task.api.output.TaskListItem;
+import com.dev.anh.task.model.entity.Project;
 import com.dev.anh.task.model.entity.Project_;
 import com.dev.anh.task.model.entity.Task;
 import com.dev.anh.task.model.entity.Task_;
@@ -35,9 +36,11 @@ public class TaskService {
 	@Transactional
 	public ModificationResult<Integer> create(TaskForm form) {
 		
-		checkBusinessRule(form);
+		var project = projectRepo.findById(form.projectId())
+				  				.orElseThrow(() -> new ApiBusinessException("There is no project with id : %d".formatted(form.projectId())));
 		
-		var project = projectRepo.findById(form.projectId()).orElseThrow(() -> new ApiBusinessException("There is no project with id : %d".formatted(form.projectId())));
+		checkBusinessRule(form, project);
+		
 		var entity = taskRepo.save(form.entity(project));
 		
 		return ModificationResult.success(entity.getId());
@@ -45,8 +48,14 @@ public class TaskService {
 
 	@Transactional
 	public ModificationResult<Integer> update(int id, TaskForm form) {
+		
+		
 		var entity = taskRepo.findById(id).orElseThrow(() -> new ApiBusinessException("There is no task with id : %d".formatted(id) ));
+		
+		checkBusinessRule(form, entity.getProject());
+		
 		form.update(entity);
+		
 		return ModificationResult.success(id);
 	}
 	
@@ -78,7 +87,7 @@ public class TaskService {
 		return TaskDetails.from(entity);
 	}
 
-	private void checkBusinessRule(TaskForm form) {
+	private void checkBusinessRule(TaskForm form, Project project) {
 		
 		if(form.startDate() == null ||
 		   form.endDate()  == null ) {
@@ -87,6 +96,18 @@ public class TaskService {
 		
 		if(!form.dueDate().isAfter(form.startDate())) {
 			 throw new ApiBusinessException("Due date must be later than start date");
+		}
+		
+		if(form.dueDate().isBefore(project.getStartDate())) { 
+			throw new ApiBusinessException("Due date must be later than project start date");
+		}
+		
+		if(null != form.startDate() &&  form.startDate().isBefore(project.getStartDate())) {
+			 throw new ApiBusinessException("Start date must be later than project start date");
+		}
+		
+		if(null != form.endDate() && form.endDate().isBefore(project.getStartDate())) {
+			 throw new ApiBusinessException("End date must be later than project start date");
 		}
 	}
 }
